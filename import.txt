@@ -1,0 +1,6 @@
+1,The Andromeda Strain,Michael Crichton
+2,1984,George Orwell
+3,Invasion,Robin Cook
+4,Project Hail Mary,Andy Weir
+5,The Hitchhiker's Guide to the Galaxy,Douglas Adams
+6,Homestuck Vol.1,Andrew Hussie

@@ -63,11 +63,22 @@ public class Ops {
      */
     public static List<Book> remove(List<Book> books) {
         boolean found = false;
+        boolean number = false;
         Scanner sc = new Scanner(System.in);
-        int id;
+        int id = -1;
 
         System.out.println("Insert the id of the book you want to remove: ");
-        id = Integer.parseInt(sc.nextLine());
+        String line = sc.nextLine();
+
+        while (!number) {
+            try {
+                id = Integer.parseInt(line);
+                number = true;
+            } catch (NumberFormatException e) {
+                System.out.println("Please input a number");
+                line = sc.nextLine();
+            }
+        }
 
         Iterator<Book> iterator = books.iterator();
         while (iterator.hasNext()) {

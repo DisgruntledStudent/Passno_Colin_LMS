@@ -20,20 +20,33 @@ public class Main {
         List<Book> col;
         Scanner sc = new Scanner(System.in);
         String act = "";
-        col = Ops.importBooks(imp);
-
+        col = Ops.importBooks();
 
         while (running) {
-            System.out.println("Please choose an action.\n\t[L]ist all books\n\t[R]emove a book\n\te[X]it program");
+            System.out.println("Please choose an action.\n\t[L]ist all books\n\tRemove a book by [I]D\n\tRemove a book by [t]itle\n\t[C]heck out a book\n\t[R]eturn a book\n\te[X]it program");
             act = sc.nextLine().trim().toLowerCase();
             switch (act) {
-                case "l" -> Ops.listAll(col);
-                case "r" -> Ops.remove(col);
-                case "x" -> running = false;
-                default -> System.out.println("Invalid action");
+                case "l":
+                    Ops.listAll(col);
+                    break;
+                case "i":
+                    Ops.remove(col);
+                    break;
+                case "t":
+                    Ops.removeByTitle(col);
+                    break;
+                case "c":
+                    Ops.checkOut(col);
+                    break;
+                case"r":
+                    Ops.checkIn(col);
+                    break;
+                case "x":
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid action");
             }
-
-
         }
     }
 }

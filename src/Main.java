@@ -30,10 +30,10 @@ public class Main {
                     Ops.listAll(col);
                     break;
                 case "i":
-                    Ops.remove(col);
+                    //Ops.remove(col);
                     break;
                 case "t":
-                    Ops.removeByTitle(col);
+                    //Ops.removeByTitle(col);
                     break;
                 case "c":
                     Ops.checkOut(col);

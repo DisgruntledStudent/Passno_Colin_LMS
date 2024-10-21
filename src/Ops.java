@@ -57,19 +57,25 @@ public class Ops {
         }
     }
 
+    public static List<Book> addObj(List<Book> list, Book book) {
+        list.add(book);
+        return list;
+    }
+
     /*
     remove()
     this method is called with an arraylist. It then prompts the user to input the ID of the book they wish to remove,
     and then iterates through the arraylist to find the appropriate book and remove it.
     The newly trimmed arraylist is then returned.
      */
-    public static List<Book> remove(List<Book> books) {
+    public static List<Book> remove(List<Book> books, int line) {
         boolean found = false;
         boolean number = false;
-        Scanner sc = new Scanner(System.in);
-        int id = -1;
+        //Scanner sc = new Scanner(System.in);
+        //int id = -1;
+        int id = line;
 
-        System.out.println("Enter the id of the book you want to remove: ");
+        /*System.out.println("Enter the id of the book you want to remove: ");
         String line = sc.nextLine();
 
         while (!number) {
@@ -81,6 +87,7 @@ public class Ops {
                 line = sc.nextLine();
             }
         }
+         */
 
         Iterator<Book> iterator = books.iterator();
         while (iterator.hasNext()) {
@@ -96,13 +103,13 @@ public class Ops {
         return books;
     }
 
-    public static List<Book> removeByTitle(List<Book> books) {
+    public static List<Book> removeByTitle(List<Book> books, String line) {
         boolean found = false;
         boolean number = false;
-        Scanner sc = new Scanner(System.in);
+        /*Scanner sc = new Scanner(System.in);
 
         System.out.println("Enter the title of the book you want to remove: ");
-        String line = sc.nextLine();
+        String line = sc.nextLine();*/
         line = line.toLowerCase();
 
         Iterator<Book> iterator = books.iterator();

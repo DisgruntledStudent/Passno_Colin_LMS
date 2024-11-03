@@ -28,6 +28,7 @@ public class Ops {
     public static List<Book> importBooks() {
         List<Book> books = new ArrayList<>();
         String path = getPath();
+        //String path = "import.txt";
         String line;
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             while ((line = br.readLine()) != null) {
@@ -57,11 +58,6 @@ public class Ops {
         }
     }
 
-    public static List<Book> addObj(List<Book> list, Book book) {
-        list.add(book);
-        return list;
-    }
-
     /*
     remove()
     this method is called with an arraylist. It then prompts the user to input the ID of the book they wish to remove,
@@ -71,24 +67,7 @@ public class Ops {
     public static List<Book> remove(List<Book> books, int line) {
         boolean found = false;
         boolean number = false;
-        //Scanner sc = new Scanner(System.in);
-        //int id = -1;
         int id = line;
-
-        /*System.out.println("Enter the id of the book you want to remove: ");
-        String line = sc.nextLine();
-
-        while (!number) {
-            try {
-                id = Integer.parseInt(line);
-                number = true;
-            } catch (NumberFormatException e) {
-                System.out.println("Please input a number");
-                line = sc.nextLine();
-            }
-        }
-         */
-
         Iterator<Book> iterator = books.iterator();
         while (iterator.hasNext()) {
             Book book = iterator.next();
@@ -96,20 +75,18 @@ public class Ops {
                 iterator.remove();
                 found = true;
                 System.out.println("***removed from collection***\n" + book + "\n");
+                JOptionPane.showMessageDialog(null, book.getTitle() + "\nRemoved Successfully", "Remove By ID", JOptionPane.INFORMATION_MESSAGE);
                 break;
             }
         }
-            if (!found) {System.out.println("No entry with ID " + id + " found!");}
+            if (!found) {
+                JOptionPane.showMessageDialog(null, "ID Not Found", "Remove By Title", JOptionPane.WARNING_MESSAGE);
+            }
         return books;
     }
 
     public static List<Book> removeByTitle(List<Book> books, String line) {
         boolean found = false;
-        boolean number = false;
-        /*Scanner sc = new Scanner(System.in);
-
-        System.out.println("Enter the title of the book you want to remove: ");
-        String line = sc.nextLine();*/
         line = line.toLowerCase();
 
         Iterator<Book> iterator = books.iterator();
@@ -119,10 +96,13 @@ public class Ops {
                 iterator.remove();
                 found = true;
                 System.out.println("***removed from collection***\n" + book + "\n");
+                JOptionPane.showMessageDialog(null, book.getTitle() + "\nRemoved Successfully", "Remove By Title", JOptionPane.INFORMATION_MESSAGE);
                 break;
             }
         }
-        if (!found) {System.out.println("Title not found!");}
+        if (!found) {
+            JOptionPane.showMessageDialog(null, "Title not found", "Remove By Title", JOptionPane.WARNING_MESSAGE);
+        }
         return books;
     }
 
@@ -130,14 +110,9 @@ public class Ops {
     Attempts to find a book in the list passed with it, and executes the book's checkOut() method.
     Returns updated collection.
      */
-    public static List<Book> checkOut(List<Book> books) {
+    public static List<Book> checkOut(List<Book> books, String input) {
         boolean found = false;
-        boolean number = false;
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("Enter the title of the book you want to check out: ");
-        String line = sc.nextLine();
-        line = line.toLowerCase();
+        String line = input.toLowerCase();
 
         Iterator<Book> iterator = books.iterator();
         while (iterator.hasNext()) {
@@ -145,15 +120,16 @@ public class Ops {
             if (line.equals(book.getTitle().toLowerCase())) {
                 found = true;
                 if (book.isCheckedOut()) {
-                    System.out.println("This title is already checked out");
+                    JOptionPane.showMessageDialog(null, book.getTitle() + "\nIs Already Checked Out", "Check Out Book", JOptionPane.WARNING_MESSAGE);
                     return books;
                 }
                 book.checkOut();
-                System.out.println("***Checked out***\n" + book + "\n");
+                JOptionPane.showMessageDialog(null, book.getTitle() + "\nChecked out successfully\nDue: " + book.getDueDate(), "Check Out Book", JOptionPane.INFORMATION_MESSAGE);
                 break;
             }
         }
-        if (!found) {System.out.println("Title not found!");}
+        if (!found) {JOptionPane.showMessageDialog(null, "Title Not Found", "Check Out Book", JOptionPane.WARNING_MESSAGE);
+        }
         return books;
     }
 
@@ -161,14 +137,9 @@ public class Ops {
     Attempts to find a book in the list passed with it, and executes the book's checkIn() method.
     Returns updated collection.
      */
-    public static List<Book> checkIn(List<Book> books) {
+    public static List<Book> checkIn(List<Book> books, String input) {
         boolean found = false;
-        boolean number = false;
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("Enter the title of the book you want to check in: ");
-        String line = sc.nextLine();
-        line = line.toLowerCase();
+        String line = input.toLowerCase();
 
         Iterator<Book> iterator = books.iterator();
         while (iterator.hasNext()) {
@@ -176,20 +147,21 @@ public class Ops {
             if (line.equals(book.getTitle().toLowerCase())) {
                 found = true;
                 if (!book.isCheckedOut()) {
-                    System.out.println("This title is already checked in");
+                    JOptionPane.showMessageDialog(null, book.getTitle() + "\nIs Already Checked In", "Check In Book", JOptionPane.WARNING_MESSAGE);
                     return books;
                 }
                 book.checkIn();
-                System.out.println("***Checked in***\n" + book + "\n");
+                JOptionPane.showMessageDialog(null, book.getTitle() + "\nChecked in successfully", "Check In Book", JOptionPane.INFORMATION_MESSAGE);
                 break;
             }
         }
-        if (!found) {System.out.println("Title not found!");}
+        if (!found) {JOptionPane.showMessageDialog(null, "Title Not Found", "Check In Book", JOptionPane.WARNING_MESSAGE);
+        }
         return books;
     }
 
+    //Small function to allow the user to select a file via jfilechooser.
     public static String getPath() {
-
         JFileChooser chooser = new JFileChooser();
         int result = chooser.showOpenDialog(null);
         if (result == JFileChooser.APPROVE_OPTION) {
@@ -200,5 +172,41 @@ public class Ops {
         }
         else {System.out.println("File selection failed, somehow.");}
         return null;
+    }
+
+    //Takes the book collection list and converts it into a 2d array object that can be used by the jframe table.
+    public static Object[][] toTable(List<Book> col) {
+        Object[][] data;
+        if (col == null) {
+            data =new Object[][] {{"--","--","--","--","--"}};
+            return data;
+        }
+        int size = col.size();
+        data = new Object[size][5];
+        for (int i = 0; i < size; i++) {
+            Book book = col.get(i);
+            data[i][0] = book.getId();
+            data[i][1] = book.getTitle();
+            data[i][2] = book.getAuthor();
+            if (book.isCheckedOut()) {
+                data[i][3] = "Checked Out";
+                data[i][4] = book.getDueDate();
+            }
+            else {
+                data[i][3] = "Checked In";
+                data[i][4] = "---";
+            }
+
+        }
+        return data;
+    }
+
+    //checks if the collection has been populated. Used to prevent users from performing operations on an empty list. Returns true if list is not null.
+    public static boolean impChk(List<Book> books) {
+        if (books == null) {
+            JOptionPane.showMessageDialog(null, "No Database Imported", "NO DATABASE", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        else {return true;}
     }
 }

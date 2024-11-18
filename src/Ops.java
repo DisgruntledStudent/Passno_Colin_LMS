@@ -11,202 +11,176 @@ At present, the only operations are to populate the list from a text file, remov
  */
 
 import javax.swing.*;
-import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
+import java.sql.*;
 
 public class Ops {
 
     /*
-    importBooks()
-    importBooks is called with the filename (or path) of the text file containing book entries.
-    It then reads this file, breaks each line into the appropriate parts, and generates an arraylist of books.
-    This arraylist is then returned.
-     */
-    public static List<Book> importBooks() {
-        List<Book> books = new ArrayList<>();
-        String path = getPath();
-        //String path = "import.txt";
-        String line;
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            while ((line = br.readLine()) != null) {
+    toTable pulls all entries from the database connection passed to it and returns a 2d array that is digestible by the GUI's table*/
+    public static Object[][] toTable(Connection db) {
+        String query = "SELECT id, title, author, genre, checkedOut, dueDate FROM books";
+        List<Object[]> dataList = new ArrayList<>(); // List to store row data
 
-                String[] parts = line.split(",");
-                int id = Integer.parseInt(parts[0]);
-                String title = parts[1];
-                String author = parts[2];
+        try (Statement stmt = db.createStatement();
+             ResultSet res = stmt.executeQuery(query)) {
 
-                Book book = new Book(id, title, author);
-                books.add(book);
+            // Iterate over ResultSet and collect data
+            while (res.next()) {
+                Object[] row = new Object[6]; // 6 columns (id, title, author, genre, checkedOut, dueDate)
+
+                row[0] = res.getInt("id");        // Book ID
+                row[1] = res.getString("title");  // Book Title
+                row[2] = res.getString("author"); // Author Name
+                row[3] = res.getString("genre");  // Genre
+                boolean isCheckedOut = res.getBoolean("checkedOut"); // Checked out status
+
+                if (isCheckedOut) {
+                    row[4] = "Checked Out";  // If checked out, show "Checked Out"
+                    row[5] = res.getString("dueDate");  // Get the due date
+                } else {
+                    row[4] = "Checked In";   // If not checked out, show "Checked In"
+                    row[5] = "---";  // No due date if checked in
+                }
+
+                // Add the row to the list
+                dataList.add(row);
             }
-        } catch (IOException e) {
+
+            // If no rows found, add a default row indicating the database is missing
+            if (dataList.isEmpty()) {
+                dataList.add(new Object[] {"--", "Database Missing!", "--", "--", "--", "--"});
+            }
+
+        } catch (SQLException e) {
             e.printStackTrace();
+            // In case of an error, add a default row with error message
+            dataList.add(new Object[] {"--", "--", "--", "--", "--", "--"});
         }
-        return books;
-    }
 
-    /*
-    listAll()
-    Lists all books found in the arraylist passed into it to the console.
-     */
-    public static void listAll(List<Book> books) {
-        System.out.println("***Listing all books***");
-        for (Book book : books) {
-            System.out.println(book);
-        }
-    }
+        // Convert List to 2D array
+        Object[][] data = new Object[dataList.size()][6];
+        dataList.toArray(data); // Copy list into array
 
-    /*
-    remove()
-    this method is called with an arraylist. It then prompts the user to input the ID of the book they wish to remove,
-    and then iterates through the arraylist to find the appropriate book and remove it.
-    The newly trimmed arraylist is then returned.
-     */
-    public static List<Book> remove(List<Book> books, int line) {
-        boolean found = false;
-        boolean number = false;
-        int id = line;
-        Iterator<Book> iterator = books.iterator();
-        while (iterator.hasNext()) {
-            Book book = iterator.next();
-            if (book.getId() == id) {
-                iterator.remove();
-                found = true;
-                System.out.println("***removed from collection***\n" + book + "\n");
-                JOptionPane.showMessageDialog(null, book.getTitle() + "\nRemoved Successfully", "Remove By ID", JOptionPane.INFORMATION_MESSAGE);
-                break;
-            }
-        }
-            if (!found) {
-                JOptionPane.showMessageDialog(null, "ID Not Found", "Remove By Title", JOptionPane.WARNING_MESSAGE);
-            }
-        return books;
-    }
-
-    public static List<Book> removeByTitle(List<Book> books, String line) {
-        boolean found = false;
-        line = line.toLowerCase();
-
-        Iterator<Book> iterator = books.iterator();
-        while (iterator.hasNext()) {
-            Book book = iterator.next();
-            if (line.equals(book.getTitle().toLowerCase())) {
-                iterator.remove();
-                found = true;
-                System.out.println("***removed from collection***\n" + book + "\n");
-                JOptionPane.showMessageDialog(null, book.getTitle() + "\nRemoved Successfully", "Remove By Title", JOptionPane.INFORMATION_MESSAGE);
-                break;
-            }
-        }
-        if (!found) {
-            JOptionPane.showMessageDialog(null, "Title not found", "Remove By Title", JOptionPane.WARNING_MESSAGE);
-        }
-        return books;
-    }
-
-    /*checkOut()
-    Attempts to find a book in the list passed with it, and executes the book's checkOut() method.
-    Returns updated collection.
-     */
-    public static List<Book> checkOut(List<Book> books, String input) {
-        boolean found = false;
-        String line = input.toLowerCase();
-
-        Iterator<Book> iterator = books.iterator();
-        while (iterator.hasNext()) {
-            Book book = iterator.next();
-            if (line.equals(book.getTitle().toLowerCase())) {
-                found = true;
-                if (book.isCheckedOut()) {
-                    JOptionPane.showMessageDialog(null, book.getTitle() + "\nIs Already Checked Out", "Check Out Book", JOptionPane.WARNING_MESSAGE);
-                    return books;
-                }
-                book.checkOut();
-                JOptionPane.showMessageDialog(null, book.getTitle() + "\nChecked out successfully\nDue: " + book.getDueDate(), "Check Out Book", JOptionPane.INFORMATION_MESSAGE);
-                break;
-            }
-        }
-        if (!found) {JOptionPane.showMessageDialog(null, "Title Not Found", "Check Out Book", JOptionPane.WARNING_MESSAGE);
-        }
-        return books;
-    }
-
-    /*checkIn()
-    Attempts to find a book in the list passed with it, and executes the book's checkIn() method.
-    Returns updated collection.
-     */
-    public static List<Book> checkIn(List<Book> books, String input) {
-        boolean found = false;
-        String line = input.toLowerCase();
-
-        Iterator<Book> iterator = books.iterator();
-        while (iterator.hasNext()) {
-            Book book = iterator.next();
-            if (line.equals(book.getTitle().toLowerCase())) {
-                found = true;
-                if (!book.isCheckedOut()) {
-                    JOptionPane.showMessageDialog(null, book.getTitle() + "\nIs Already Checked In", "Check In Book", JOptionPane.WARNING_MESSAGE);
-                    return books;
-                }
-                book.checkIn();
-                JOptionPane.showMessageDialog(null, book.getTitle() + "\nChecked in successfully", "Check In Book", JOptionPane.INFORMATION_MESSAGE);
-                break;
-            }
-        }
-        if (!found) {JOptionPane.showMessageDialog(null, "Title Not Found", "Check In Book", JOptionPane.WARNING_MESSAGE);
-        }
-        return books;
-    }
-
-    //Small function to allow the user to select a file via jfilechooser.
-    public static String getPath() {
-        JFileChooser chooser = new JFileChooser();
-        int result = chooser.showOpenDialog(null);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = chooser.getSelectedFile();
-            return selectedFile.getAbsolutePath();
-        } else if (result == JFileChooser.CANCEL_OPTION) {
-            System.out.println("File selection canceled.");
-        }
-        else {System.out.println("File selection failed, somehow.");}
-        return null;
-    }
-
-    //Takes the book collection list and converts it into a 2d array object that can be used by the jframe table.
-    public static Object[][] toTable(List<Book> col) {
-        Object[][] data;
-        if (col == null) {
-            data =new Object[][] {{"--","--","--","--","--"}};
-            return data;
-        }
-        int size = col.size();
-        data = new Object[size][5];
-        for (int i = 0; i < size; i++) {
-            Book book = col.get(i);
-            data[i][0] = book.getId();
-            data[i][1] = book.getTitle();
-            data[i][2] = book.getAuthor();
-            if (book.isCheckedOut()) {
-                data[i][3] = "Checked Out";
-                data[i][4] = book.getDueDate();
-            }
-            else {
-                data[i][3] = "Checked In";
-                data[i][4] = "---";
-            }
-
-        }
         return data;
     }
 
-    //checks if the collection has been populated. Used to prevent users from performing operations on an empty list. Returns true if list is not null.
-    public static boolean impChk(List<Book> books) {
-        if (books == null) {
-            JOptionPane.showMessageDialog(null, "No Database Imported", "NO DATABASE", JOptionPane.ERROR_MESSAGE);
-            return false;
+    /*
+    removes a row from the database passed to it who's name matches the string passed to it. Displays feedback for success/fail/error.
+     */
+    public static void dbRemoveTitle(Connection db, String title) {
+        String query = "DELETE FROM books WHERE title = ?"; // SQL DELETE query
+
+        try (PreparedStatement stmt = db.prepareStatement(query)) {
+            stmt.setString(1, title);  // Set the title parameter to the provided value
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(null, rowsAffected + " Entries Removed Successfully", "Remove By Title", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "No Entries Found", "Remove By Title", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "\nSQL EXCEPTION", "SQL EXCEPTION", JOptionPane.INFORMATION_MESSAGE);
+
         }
-        else {return true;}
+    }
+
+    /*
+    removes a row from the database passed to it who's id matches the string passed to it. Displays feedback for success/fail/error.
+     */
+    public static void dbRemoveId(Connection db, String id) {
+        String query = "DELETE FROM books WHERE id = ?"; // SQL DELETE query
+
+        try (PreparedStatement stmt = db.prepareStatement(query)) {
+            stmt.setString(1, id);  // Set the title parameter to the provided value
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(null, rowsAffected + " Entries Removed Successfully", "Remove By ID", JOptionPane.INFORMATION_MESSAGE);
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "No Entries Found", "Remove By ID", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "\nSQL EXCEPTION", "SQL EXCEPTION", JOptionPane.INFORMATION_MESSAGE);
+
+        }
+    }
+
+    /*
+    checks out a book from the database passed to it who's id matches the string passed to it. Displays feedback for success/fail/error.
+     */
+    public static void dbCheckOut(Connection db, int id) {
+        String chkQry = "SELECT checkedOut FROM books WHERE id = ?";
+        String updQry = "UPDATE books SET checkedOut = 1, dueDate = ? WHERE id = ?";
+        try {
+            try (PreparedStatement selectStmt = db.prepareStatement(chkQry)) {
+                selectStmt.setInt(1, id);
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (rs.next()) {
+                        boolean isCheckedOut = rs.getBoolean("checkedOut");
+                        if (!isCheckedOut) {
+                            LocalDate dueDate = LocalDate.now().plusWeeks(4);
+                            String due = dueDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                            try (PreparedStatement updateStmt = db.prepareStatement(updQry)) {
+                                updateStmt.setString(1, due);
+                                updateStmt.setInt(2, id);
+                                int rowsAffected = updateStmt.executeUpdate();
+                                if (rowsAffected > 0) {
+                                    JOptionPane.showMessageDialog(null, "Book checked out successfully\nDue: " + due, "Check Out Book", JOptionPane.INFORMATION_MESSAGE);
+                                }
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Book already checked out", "Check Out Book", JOptionPane.WARNING_MESSAGE);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No entry found", "Check Out Book", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*
+    checks in a book from the database passed to it who's id matches the string passed to it. Displays feedback for success/fail/error.
+     */
+    public static void dbCheckIn(Connection db, int id) {
+        String chkQry = "SELECT checkedOut FROM books WHERE id = ?";
+        String updQry = "UPDATE books SET checkedOut = 0, dueDate = ? WHERE id = ?";
+        try {
+            try (PreparedStatement selectStmt = db.prepareStatement(chkQry)) {
+                selectStmt.setInt(1, id);
+                try (ResultSet rs = selectStmt.executeQuery()) {
+                    if (rs.next()) {
+                        boolean isCheckedOut = rs.getBoolean("checkedOut");
+                        if (isCheckedOut) {
+                            try (PreparedStatement updateStmt = db.prepareStatement(updQry)) {
+                                updateStmt.setNull(1, java.sql.Types.VARCHAR);
+                                updateStmt.setInt(2, id);
+                                int rowsAffected = updateStmt.executeUpdate();
+                                if (rowsAffected > 0) {
+                                    JOptionPane.showMessageDialog(null, "Book checked in successfully", "Check In Book", JOptionPane.INFORMATION_MESSAGE);
+                                }
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Book already checked in", "Check In Book", JOptionPane.WARNING_MESSAGE);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No entry found", "Check In Book", JOptionPane.WARNING_MESSAGE);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

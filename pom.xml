@@ -1,0 +1,18 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>library.database</groupId>  <!-- Your company or organization's domain -->
+    <artifactId>Passno_Colin_LMS</artifactId>  <!-- The name of your project/module -->
+    <version>0.4</version> <!-- Version of your project -->
+    <packaging>jar</packaging>  <!-- Type of artifact produced (e.g., JAR, WAR) -->
+
+    <dependencies>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.41.2.1</version>
+        </dependency>
+    </dependencies>
+</project>

@@ -17,10 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.sql.*;
 
+/**
+ * Ops class contains all the methods that interface with the database
+ */
 public class Ops {
-
-    /*
-    toTable pulls all entries from the database connection passed to it and returns a 2d array that is digestible by the GUI's table*/
+    /**
+     * toTable - pulls all entries from the database connection passed to it and returns a 2d array that is digestible by the GUI's table
+     *
+     * @param db A connection to a database
+     * @return A 2d array of database rows/columns
+     */
     public static Object[][] toTable(Connection db) {
         String query = "SELECT id, title, author, genre, checkedOut, dueDate FROM books";
         List<Object[]> dataList = new ArrayList<>(); // List to store row data
@@ -32,21 +38,19 @@ public class Ops {
             while (res.next()) {
                 Object[] row = new Object[6]; // 6 columns (id, title, author, genre, checkedOut, dueDate)
 
-                row[0] = res.getInt("id");        // Book ID
-                row[1] = res.getString("title");  // Book Title
-                row[2] = res.getString("author"); // Author Name
-                row[3] = res.getString("genre");  // Genre
-                boolean isCheckedOut = res.getBoolean("checkedOut"); // Checked out status
+                row[0] = res.getInt("id");
+                row[1] = res.getString("title");
+                row[2] = res.getString("author");
+                row[3] = res.getString("genre");
+                boolean isCheckedOut = res.getBoolean("checkedOut");
 
                 if (isCheckedOut) {
-                    row[4] = "Checked Out";  // If checked out, show "Checked Out"
-                    row[5] = res.getString("dueDate");  // Get the due date
+                    row[4] = "Checked Out";
+                    row[5] = res.getString("dueDate");
                 } else {
-                    row[4] = "Checked In";   // If not checked out, show "Checked In"
-                    row[5] = "---";  // No due date if checked in
+                    row[4] = "Checked In";
+                    row[5] = "---";
                 }
-
-                // Add the row to the list
                 dataList.add(row);
             }
 
@@ -57,19 +61,19 @@ public class Ops {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            // In case of an error, add a default row with error message
-            dataList.add(new Object[] {"--", "--", "--", "--", "--", "--"});
+            dataList.add(new Object[] {"--", "Database Missing!", "--", "--", "--", "--"});
         }
 
-        // Convert List to 2D array
-        Object[][] data = new Object[dataList.size()][6];
-        dataList.toArray(data); // Copy list into array
 
+        Object[][] data = new Object[dataList.size()][6];
+        dataList.toArray(data);
         return data;
     }
 
-    /*
-    removes a row from the database passed to it who's name matches the string passed to it. Displays feedback for success/fail/error.
+    /**
+     * dbRemoveTitle - removes a row from the database passed to it who's name matches the string passed to it. Displays feedback for success/fail/error.
+     * @param db connection to database
+     * @param title Title of desired entry to remove
      */
     public static void dbRemoveTitle(Connection db, String title) {
         String query = "DELETE FROM books WHERE title = ?"; // SQL DELETE query
@@ -91,8 +95,11 @@ public class Ops {
         }
     }
 
-    /*
-    removes a row from the database passed to it who's id matches the string passed to it. Displays feedback for success/fail/error.
+    /**
+     * dbRemoveId - removes a row from the database passed to it who's id matches the string passed to it. Displays feedback for success/fail/error.
+     *
+     * @param db database connection
+     * @param id ID of desired entry to remove
      */
     public static void dbRemoveId(Connection db, String id) {
         String query = "DELETE FROM books WHERE id = ?"; // SQL DELETE query
@@ -114,8 +121,11 @@ public class Ops {
         }
     }
 
-    /*
-    checks out a book from the database passed to it who's id matches the string passed to it. Displays feedback for success/fail/error.
+    /**
+     * dbCheckOut - checks out a book from the database passed to it who's id matches the string passed to it. Displays feedback for success/fail/error.
+     *
+     * @param db database connection
+     * @param id ID of desired entry to check out
      */
     public static void dbCheckOut(Connection db, int id) {
         String chkQry = "SELECT checkedOut FROM books WHERE id = ?";
@@ -150,8 +160,11 @@ public class Ops {
         }
     }
 
-    /*
-    checks in a book from the database passed to it who's id matches the string passed to it. Displays feedback for success/fail/error.
+    /**
+     * dbCheckIn - checks out a book from the database passed to it who's id matches the string passed to it. Displays feedback for success/fail/error.
+     *
+     * @param db database connection
+     * @param id ID of desired entry to check in
      */
     public static void dbCheckIn(Connection db, int id) {
         String chkQry = "SELECT checkedOut FROM books WHERE id = ?";

@@ -5,16 +5,17 @@ Software Development 1
 9/2/2024
 */
 
-/*
-A connection is established to a database file containing a catalogue of books.
-A window is generated, displaying a table containing the books and a series of buttons used to execute actions.
- */
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
 
+/**
+ * Main class
+ * A connection is established to a database file containing a catalogue of books.
+ * A window is generated, displaying a table containing the books and a series of buttons used to execute actions.
+ */
 public class Main extends JFrame {
     private JPanel MainPanel;
     private JTable table;
@@ -94,7 +95,9 @@ public class Main extends JFrame {
 
     }
 
-    //custom formatting for the table
+    /**
+     * custom formatting for table element
+     */
     private void createUIComponents() {
         String[] columnNames = {"ID", "Title", "Author", "Genre", "Checked Out", "Due Date"};
         Object[][] tData = new Object[][] {{"--", "--", "--", "--", "--"}};
@@ -110,6 +113,11 @@ public class Main extends JFrame {
     }
 
     // Method to refresh the table data. Clears data from table and populates it again.
+
+    /**
+     * refreshes data in table
+     * @param db connection to database
+     */
     public void refreshTableData(Connection db) {
         Object[][] newData = Ops.toTable(db);
         tModel.setRowCount(0);

@@ -5,14 +5,12 @@ Software Development 1
 9/2/2024
 */
 
-/*
-This class defines and manages the "book" object. Each object simply consists of three variables: An ID, a title, and an author.
-This is meant to be used in conjunction with the arraylist to create the "database"
- */
-
 
 import java.time.LocalDate;
 
+/**
+ * The Book class defines and manages the "book" object. Each object simply consists of five variables: An ID, a title, an author, a flag indicating if a book is checked out, and a due date..
+ */
 public class Book {
     private int id;
     private String title;
@@ -55,9 +53,10 @@ public class Book {
     }
 
 
-    /*checkOut()
-    self-contained method for checking out a book. Defaults to 4 weeks if called with no set length.
-    */
+    /**
+     * checkOut()
+     * This method sets the book's checkedOut flag to true, and sets it's due date to four weeks from the current date,
+     */
     public void checkOut() {
         checkedOut = true;
         dueDate = LocalDate.now().plusDays(28);
@@ -67,15 +66,19 @@ public class Book {
         dueDate = LocalDate.now().plusDays(days);
     }
 
-    /*checkIn()
-    Resets a book's checked out flag and clears the due date.
-    */
+    /**
+     * checkIn()
+     * This method sets the book's checkedOut flag to false, and sets it's due date to NULL,
+     */
     public void checkIn() {
         checkedOut = false;
         dueDate = null;
     }
 
-    //Override of toString, so that we can just type "book" instead of a long chain of gets when we want to display an entry.
+    /**
+     * Override of toString, so that we can just type "book" instead of a long chain of gets when we want to display an entry.
+     * @return returns a string describing the state of several object variables
+     */
     @Override
     public String toString() {
         String output = "ID: " + id + "\n\t TITLE: " + title + " \n\t\tAUTHOR: " + author + "\n\t\t STATUS: ";
